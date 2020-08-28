@@ -1,11 +1,82 @@
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+a, a:hover{
+    text-decoration: none;
+    
+}
+
+li{
+    list-style: none;
+}
+body{
+    background: #00ff6265;
+    
+}
 #movie-backdrop {
     width: 100%;
 }
 
 .container {
-    padding-top: 32px;
+    padding-top: 3rem;
 }
 
 #actors {
-    margin: 24px 16px 0 0;
+    margin: 2.5rem 1rem 0 0;
+}
+
+
+.logo{
+    height: 3rem;
+}
+
+.navbar{
+    font-size: 1.5rem;
+    background: #11998e;  /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #38ef7d, #11998e);  /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #38ef7d, #11998e); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    width: 100%;
+} 
+
+a.github {
+    margin-left: .3rem;
+    margin-right: .6rem;
+    margin-bottom: 2rem;
+    color: black;
+    
+    
+}
+a.github:hover{
+    opacity: .7;
+}
+footer{
+    font-size: 1.5rem;
+    padding: .2rem;
+    background: -webkit-linear-gradient(to right, #38ef7d, #11998e);  /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #38ef7d, #11998e); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    width: 100%
+}
+
+.btn {
+    border-color: #38ef7d;  
+    color:#38ef7d; 
+    font-size: 1.5rem ;
+}
+.btn:hover{
+    background-color: #38ef7d; 
+    border-color: #38ef7d;
+    color: #11998e;
+}
+
+input[type="search"]{
+    border-color: #38ef7d;
+}
+input[type="search"]::placeholder{
+    color: #11998ea1;
+}
+input[type="search"]:focus {
+    outline: none;
 }
