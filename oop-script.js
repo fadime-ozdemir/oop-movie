@@ -4,10 +4,11 @@ class App {
     static async run() {
         const movies = await APIService.fetchMovies()
         HomePage.renderMovies(movies);
+        APIService.fetchGenres();
     }
 }
 
-class APIService {
+class APIService {//all fetching
     static TMDB_BASE_URL = 'https://api.themoviedb.org/3';
     static async fetchMovies() {
         const url = APIService._constructUrl(`movie/now_playing`)
@@ -22,7 +23,23 @@ class APIService {
         return new Movie(data)
     }
     static _constructUrl(path) {
+        //?api_key=bf7ab359462818f32eb7b959cdf93a06
         return `${this.TMDB_BASE_URL}/${path}?api_key=${atob('NTQyMDAzOTE4NzY5ZGY1MDA4M2ExM2M0MTViYmM2MDI=')}`;
+    }
+    static async fetchGenres(){
+        const dropdownMenu = document.querySelector(".dropdown-menu")
+        const url = APIService._constructUrl(`genre/movie/list`)
+        const response = await fetch(url);
+        const data = await response.json()
+        const genres = data.genres.map(genre => genre.name)
+        console.log(genres)
+        genres.forEach(genre => {
+            //`<a class="dropdown-item" href="#">${genre}</a>`
+            let dropdownEl = document.createElement("a")
+            dropdownEl.className = "dropdown-item";
+            dropdownEl.innerText = genre;
+            dropdownMenu.appendChild(dropdownEl)
+        })
     }
 }
 
@@ -52,7 +69,6 @@ class Movies {
         const movieData = await APIService.fetchMovie(movie.id)
         MoviePage.renderMovieSection(movieData);
         APIService.fetchActors(movieData)
-
     }
 }
 
@@ -101,3 +117,7 @@ class Movie {
 }
 
 document.addEventListener("DOMContentLoaded", App.run);
+
+// select the drop menu
+// when page loaded we fetch data from url +/genre/movie/list
+//
