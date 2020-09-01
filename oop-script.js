@@ -31,6 +31,8 @@ class APIService {//all fetching
         const url = APIService._constructUrl(`genre/movie/list`)
         const response = await fetch(url);
         const data = await response.json()
+
+        ///discover/movie?with_genres=18
         const genres = data.genres.map(genre => genre.name)
         console.log(genres)
         genres.forEach(genre => {
@@ -40,6 +42,14 @@ class APIService {//all fetching
             dropdownEl.innerText = genre;
             dropdownMenu.appendChild(dropdownEl)
         })
+    }
+
+    static async fetchAllActors(){
+        const url = APIService._constructUrl(`person/popular`)
+        const response = await fetch(url);
+        const data = await response.json()
+        console.log(data.results)
+        return data
     }
 }
 
@@ -116,8 +126,58 @@ class Movie {
     }
 }
 
-document.addEventListener("DOMContentLoaded", App.run);
+class Actors {
+    static async run() {
+        const actorsData = await APIService.fetchAllActors()
+        ActorsPage.renderActors(actorsData);
+        // APIService.fetchActors(movieData)
+    }
+}
 
+class Actor {
+    static BACKDROP_BASE_URL = 'http://image.tmdb.org/t/p/w780'
+    constructor(json){
+        this.id = json.id;
+        this.name = json.name;
+        this.gender = json.gender;
+        this.knownFor = json.known_for;
+        this.popularity = json.popularity;
+        this.profilePath = json.profile_path;
+    }
+
+    get backdropUrl() {
+        return this.profilePath ? Actor.BACKDROP_BASE_URL + this.profilePath : "";
+    }
+}
+
+class ActorsPage {
+    static container = document.getElementById('container');
+    
+    static renderActors(actors) {
+        //clear container
+        this.container.innerHTML = "";
+        console.log( actors)
+        actors.results.forEach(actor => {
+            // const actorInstance = new Actor(actor)
+            const actorDiv = document.createElement("div");
+            const actorImage = document.createElement("img");
+            actorImage.src = `${actor.profilePath}`;
+            const actorName = document.createElement("h3");
+            actorName.textContent = `${actor.name}`;
+            actorImage.addEventListener("click", function() {
+                //go to actor page
+            });
+
+            actorDiv.appendChild(actorName);
+            actorDiv.appendChild(actorImage);
+            this.container.appendChild(actorDiv);
+        })
+    }
+}
+
+const actorsBtn = document.querySelector("#actors")
+document.addEventListener("DOMContentLoaded", App.run);
+actorsBtn.addEventListener("click", Actors.run)
 // select the drop menu
 // when page loaded we fetch data from url +/genre/movie/list
 //
