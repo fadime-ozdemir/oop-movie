@@ -5,6 +5,12 @@ class App {
         const movies = await APIService.fetchMovies()
         HomePage.renderMovies(movies);
         APIService.fetchGenres();
+        const home = document.querySelector("#home")
+        home.addEventListener("click", () => {
+            const container = document.querySelector("#container")
+            container.innerHTML = "";
+            HomePage.renderMovies(movies)
+        })
     }
 }
 
@@ -50,6 +56,20 @@ class APIService {//all fetching
         const data = await response.json()
         console.log(data.results)
         return data
+    }
+    
+    static async fetchSearch(input){
+        try {
+        const restOfurl = `&language=en-US&query=${input}&page=1&include_adult=false`
+        const url = APIService._constructUrl(`search/multi`) +restOfurl
+        const response = await fetch(url);
+        const data = await response.json()
+        console.log(data)
+        return data
+        }
+        catch(err){
+            console.log(err)
+        }
     }
 }
 
@@ -146,6 +166,7 @@ class Actor {
     }
 
     get backdropUrl() {
+        
         return this.profilePath ? Actor.BACKDROP_BASE_URL + this.profilePath : "";
     }
 }
@@ -154,16 +175,18 @@ class ActorsPage {
     static container = document.getElementById('container');
     
     static renderActors(actors) {
+        
         //clear container
         this.container.innerHTML = "";
-        console.log( actors)
+        // console.log( actors)
         actors.results.forEach(actor => {
-            // const actorInstance = new Actor(actor)
+            
+            const actorInstance = new Actor(actor)
             const actorDiv = document.createElement("div");
             const actorImage = document.createElement("img");
-            actorImage.src = `${actor.profilePath}`;
+            actorImage.src = `${actorInstance.backdropUrl}`;
             const actorName = document.createElement("h3");
-            actorName.textContent = `${actor.name}`;
+            actorName.textContent = `${ actorInstance.name}`;
             actorImage.addEventListener("click", function() {
                 //go to actor page
             });
@@ -175,9 +198,41 @@ class ActorsPage {
     }
 }
 
+function showAbout(){
+    const container = document.getElementById('container');
+    container.innerHTML = "";
+    container.innerHTML = `
+      <div>
+        <h1>
+            About:
+        </h1>
+        <p>
+            Hello, what's up
+        </p>
+      </div>  
+    `;
+}
+
+function showSearches(){
+
+}
+
+const searchBtn = document.querySelector("[type='submit']")
+
+searchBtn.addEventListener("click", function(e){
+    e.preventDefault();
+    const input = document.querySelector("#search-input")
+    // input.required = true;
+    APIService.fetchSearch(input.value)
+    })
+
 const actorsBtn = document.querySelector("#actors")
 document.addEventListener("DOMContentLoaded", App.run);
 actorsBtn.addEventListener("click", Actors.run)
+
+const about = document.querySelector("#about")
+about.addEventListener("click", showAbout)
+
 // select the drop menu
 // when page loaded we fetch data from url +/genre/movie/list
 //
