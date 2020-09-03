@@ -37,10 +37,10 @@ class APIService {//all fetching
         const url = APIService._constructUrl(`genre/movie/list`)
         const response = await fetch(url);
         const data = await response.json()
-
+        
         ///discover/movie?with_genres=18
         const genres = data.genres.map(genre => genre.name)
-        console.log(genres)
+        // console.log(genres)
         genres.forEach(genre => {
             //`<a class="dropdown-item" href="#">${genre}</a>`
             let dropdownEl = document.createElement("a")
@@ -54,10 +54,16 @@ class APIService {//all fetching
         const url = APIService._constructUrl(`person/popular`)
         const response = await fetch(url);
         const data = await response.json()
-        console.log(data.results)
-        return data
+        return data.results.map(actor => new Actor(actor))
     }
     
+    static async fetchActor(actorId){
+        const url = APIService._constructUrl(`person/${actorId}`)
+        const response = await fetch(url)
+        const data = await response.json()
+        return new Actor(data)
+    }
+
     static async fetchSearch(input){
         try {
         const restOfurl = `&language=en-US&query=${input}&page=1&include_adult=false`
@@ -90,6 +96,40 @@ class HomePage {
             movieDiv.appendChild(movieImage);
             this.container.appendChild(movieDiv);
         })
+    }
+}
+
+class SearchPage{
+    static container = document.getElementById('container');
+    static renderSearch(data){
+        if(data===undefined) { alert("movie isn't present")}
+        else{
+        this.container.innerHTML = "";
+        data.forEach(element => {
+            
+            const elementDiv = document.createElement("div");
+            const elementImage = document.createElement("img");
+            if (element.media_type === "person"){
+                const elemInstance = new Actor(element)
+                elementImage.src = `${elemInstance.backdropUrl}`;
+                elementImage.addEventListener("click", function() {
+                    Actors.run(elemInstance);//change in actor, now fetch all actors!!! make actorPage
+                });
+                elementDiv.appendChild(elementImage);
+                this.container.appendChild(elementDiv);
+            }
+            else if(element.media_type ==="movie"){
+                const elemInstance = new Movie(element)
+                elementImage.src = `${elemInstance.backdropUrl}`
+                
+                elementImage.addEventListener("click", function() {
+                    Movies.run(elemInstance);
+                });
+               
+                elementDiv.appendChild(elementImage);
+                this.container.appendChild(elementDiv);
+            }
+        })}
     }
 }
 
@@ -166,7 +206,6 @@ class Actor {
     }
 
     get backdropUrl() {
-        
         return this.profilePath ? Actor.BACKDROP_BASE_URL + this.profilePath : "";
     }
 }
@@ -219,11 +258,14 @@ function showSearches(){
 
 const searchBtn = document.querySelector("[type='submit']")
 
-searchBtn.addEventListener("click", function(e){
+searchBtn.addEventListener("click", async function(e){
     e.preventDefault();
     const input = document.querySelector("#search-input")
+    // const input = document.querySelector("")
     // input.required = true;
-    APIService.fetchSearch(input.value)
+    srchResults = await APIService.fetchSearch(input.value)
+    console.log(srchResults)
+    SearchPage.renderSearch(srchResults.results)
     })
 
 const actorsBtn = document.querySelector("#actors")
