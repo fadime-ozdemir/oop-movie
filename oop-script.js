@@ -277,4 +277,3 @@ about.addEventListener("click", showAbout)
 
 // select the drop menu
 // when page loaded we fetch data from url +/genre/movie/list
-//
