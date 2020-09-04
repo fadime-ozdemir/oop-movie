@@ -54,6 +54,7 @@ class APIService {//all fetching
         const url = APIService._constructUrl(`person/popular`)
         const response = await fetch(url);
         const data = await response.json()
+        console.log("All Actors", data)
         return data.results.map(actor => new Actor(actor))
     }
     
@@ -61,13 +62,14 @@ class APIService {//all fetching
         const url = APIService._constructUrl(`person/${actorId}`)
         const response = await fetch(url)
         const data = await response.json()
+        console.log("fetch actor",data)
         return new Actor(data)
     }
 
     static async fetchSearch(input){
         try {
         const restOfurl = `&language=en-US&query=${input}&page=1&include_adult=false`
-        const url = APIService._constructUrl(`search/multi`) +restOfurl
+        const url = APIService._constructUrl(`search/multi`) + restOfurl
         const response = await fetch(url);
         const data = await response.json()
         console.log(data)
@@ -77,6 +79,29 @@ class APIService {//all fetching
             console.log(err)
         }
     }
+
+    static async fetchMovieCredits(movieId){
+        const url = APIService._constructUrl(`movie/${movieId}/credits`)
+        const response = await fetch(url)
+        const data = await response.json()
+        return data;
+    }
+
+    
+    static async fetchTrailer(movieId){
+        const url = APIService._constructUrl(`movie/${movieId}/videos`)
+        const response = await fetch(url)
+        const data = await response.json()
+        return data;
+    }
+
+    static async fetchSimilarMovies(movieId){
+        const url = APIService._constructUrl(`movie/${movieId}/similar`)
+        const response = await fetch(url)
+        const data = await response.json()
+        return data;
+    }
+
 }
 
 class HomePage {
@@ -199,10 +224,13 @@ class Actor {
     constructor(json){
         this.id = json.id;
         this.name = json.name;
-        this.gender = json.gender;
+        this.gender = json.gender===2? "male" : "famale"; 
         this.knownFor = json.known_for;
         this.popularity = json.popularity;
         this.profilePath = json.profile_path;
+        this.birthday = json.birthday;
+        this.deathday= json.deathday;
+        this.bio = json.biography;
     }
 
     get backdropUrl() {
@@ -214,26 +242,95 @@ class ActorsPage {
     static container = document.getElementById('container');
     
     static renderActors(actors) {
-        
         //clear container
         this.container.innerHTML = "";
-        // console.log( actors)
-        actors.results.forEach(actor => {
-            
-            const actorInstance = new Actor(actor)
+        actors.forEach(actor => {
             const actorDiv = document.createElement("div");
             const actorImage = document.createElement("img");
-            actorImage.src = `${actorInstance.backdropUrl}`;
+            actorImage.src = `${actor.backdropUrl}`;
             const actorName = document.createElement("h3");
-            actorName.textContent = `${ actorInstance.name}`;
-            actorImage.addEventListener("click", function() {
-                //go to actor page
+            actorName.textContent = `${actor.name}`;
+            
+            actorImage.addEventListener("click", async function() {
+                SingleActorPage.renderActor(actor)
+            //    const singleActor = await APIService.fetchActor(actor.id)
+            //    console.log(actor.knownFor)
             });
 
             actorDiv.appendChild(actorName);
             actorDiv.appendChild(actorImage);
             this.container.appendChild(actorDiv);
         })
+    }
+}
+
+class SingleActorPage{
+    
+    static async renderActor(actor) {
+        const singleActor = await APIService.fetchActor(actor.id)
+        // console.log("aaa", singleActor)
+        const birthday = singleActor.birthday===null? "unknown" : singleActor.birthday
+        const deathday = singleActor.deathday === null? "alive" :singleActor.deathday
+        // console.log(singleActor.birthday)
+        // console.log(this.showRelatedMovies(actor.knownFor))
+        const container = document.querySelector("#container")
+        container.innerHTML = ""
+       container.innerHTML = `
+      <div class="row">
+        <div class="col-md-4">
+          <img id="movie-backdrop" src=${actor.backdropUrl}> 
+        </div>
+        <div class="col-md-8">
+          <h2 id="actor-name">${actor.name}</h2>
+          <h3>gender:</h3>
+          <p id="gender">${actor.gender}</p>
+          <h3>birthday:</h3>
+          <p id="birthday">${birthday}/ ${deathday}</p>
+          <h3>popularity</h3>
+          <p id="popularity">${actor.popularity}</p>
+          <h3>Biography</h3>
+          <p id="bio"> ${singleActor.bio}</p>
+          <h4>Famous for:</h4>
+            <div className="knownfor">
+                
+           ${ 
+            
+            actor.knownFor.map(movie=>{
+                console.log(movie.original_name, movie.original_title )
+                if (movie.media_type==="tv"){ 
+                    
+                   return `<p class= "related-show">${movie.original_name}</p>`
+                    
+                }
+                else {
+                 return `<p class= "related-show">${movie.original_title}</p>`
+               
+                }
+                
+
+            }).join("")
+           
+        }
+            </div>
+          
+        </div>
+      </div>
+    `;
+        const arrP = document.querySelectorAll(".related-show")
+        // actor.knownFor.forEach(movie=>{
+            for(let i= 0; i<arrP.length; i++){
+                arrP[i].addEventListener("click", (e)=> {
+                    e.preventDefault()
+                    // console.log("movies", movie)
+                    //if actor.knownFor[i] create a page which shows this is a tv show and
+                    //  it not present in movie database
+                   let movie = new Movie(actor.knownFor[i])
+                   MovieSection.renderMovie(movie)
+                
+                })
+            }
+           
+        
     }
 }
 
@@ -261,8 +358,8 @@ const searchBtn = document.querySelector("[type='submit']")
 searchBtn.addEventListener("click", async function(e){
     e.preventDefault();
     const input = document.querySelector("#search-input")
-    // const input = document.querySelector("")
-    // input.required = true;
+    
+    // console.log(input.value)
     srchResults = await APIService.fetchSearch(input.value)
     console.log(srchResults)
     SearchPage.renderSearch(srchResults.results)
