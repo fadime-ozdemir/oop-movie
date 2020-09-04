@@ -324,6 +324,11 @@ class SingleActorPage{
                     // console.log("movies", movie)
                     //if actor.knownFor[i] create a page which shows this is a tv show and
                     //  it not present in movie database
+                    if (actor.knownFor[i].original_name) {
+                        const container = document.querySelector("#container")
+                        container.innerHTML = ""
+                        return container.innerHTML = `<h1>This is a tv show and it not present in movie database</h1>`
+                    }
                    let movie = new Movie(actor.knownFor[i])
                    MovieSection.renderMovie(movie)
                 
