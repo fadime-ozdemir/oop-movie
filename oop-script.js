@@ -110,6 +110,7 @@ class HomePage {
         movies.forEach(movie => {
             const movieDiv = document.createElement("div");
             const movieImage = document.createElement("img");
+            movieImage.style.cursor = "pointer";
             movieImage.src = `${movie.backdropUrl}`;
             const movieTitle = document.createElement("h3");
             movieTitle.textContent = `${movie.title}`;
@@ -134,11 +135,12 @@ class SearchPage{
             
             const elementDiv = document.createElement("div");
             const elementImage = document.createElement("img");
+            elementImage.style.cursor = "pointer";
             if (element.media_type === "person"){
                 const elemInstance = new Actor(element)
                 elementImage.src = `${elemInstance.backdropUrl}`;
                 elementImage.addEventListener("click", function() {
-                    Actors.run(elemInstance);//change in actor, now fetch all actors!!! make actorPage
+                    SingleActorPage.renderActor(elemInstance);//change in actor, now fetch all actors!!! make actorPage
                 });
                 elementDiv.appendChild(elementImage);
                 this.container.appendChild(elementDiv);
@@ -247,6 +249,7 @@ class ActorsPage {
         actors.forEach(actor => {
             const actorDiv = document.createElement("div");
             const actorImage = document.createElement("img");
+            actorImage.style.cursor = "pointer";
             actorImage.src = `${actor.backdropUrl}`;
             const actorName = document.createElement("h3");
             actorName.textContent = `${actor.name}`;
@@ -299,11 +302,11 @@ class SingleActorPage{
                 console.log(movie.original_name, movie.original_title )
                 if (movie.media_type==="tv"){ 
                     
-                   return `<p class= "related-show">${movie.original_name}</p>`
+                   return `<p class= "related-show" style="cursor:pointer">${movie.original_name}</p>`
                     
                 }
                 else {
-                 return `<p class= "related-show">${movie.original_title}</p>`
+                 return `<p class= "related-show" style="cursor:pointer">${movie.original_title}</p>`
                
                 }
                 
