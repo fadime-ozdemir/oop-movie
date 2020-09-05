@@ -297,7 +297,7 @@ class SingleActorPage{
           <h2 id="actor-name">${actor.name}</h2>
           <h3>gender:</h3>
           <p id="gender">${actor.gender}</p>
-          <h3>birthday:</h3>
+          <h3>birthday/deathday:</h3>
           <p id="birthday">${birthday}/ ${deathday}</p>
           <h3>popularity</h3>
           <p id="popularity">${actor.popularity}</p>
@@ -332,7 +332,7 @@ class SingleActorPage{
         const arrP = document.querySelectorAll(".related-show")
         // actor.knownFor.forEach(movie=>{
             for(let i= 0; i<arrP.length; i++){
-                arrP[i].addEventListener("click", (e)=> {
+                arrP[i].addEventListener("click", async (e)=> {
                     e.preventDefault()
                     // console.log("movies", movie)
                     //if actor.knownFor[i] create a page which shows this is a tv show and
@@ -342,8 +342,8 @@ class SingleActorPage{
                         container.innerHTML = ""
                         return container.innerHTML = `<h1>This is a tv show and it not present in movie database</h1>`
                     }
-                   let movie = new Movie(actor.knownFor[i])
-                   console.log("mov",actor.knownFor[i])
+                   let movie = await APIService.fetchMovie(actor.knownFor[i].id)
+                //    console.log("mov",actor.knownFor[i])
                    MovieSection.renderMovie(movie)
                 
                 })
