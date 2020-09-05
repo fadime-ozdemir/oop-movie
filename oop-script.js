@@ -140,7 +140,7 @@ class SearchPage{
                 const elemInstance = new Actor(element)
                 elementImage.src = `${elemInstance.backdropUrl}`;
                 elementImage.addEventListener("click", function() {
-                    Actors.run(elemInstance);//change in actor, now fetch all actors!!! make actorPage
+                    SingleActorPage.renderActor(elemInstance);//change in actor, now fetch all actors!!! make actorPage
                 });
                 elementDiv.appendChild(elementImage);
                 this.container.appendChild(elementDiv);
