@@ -177,7 +177,11 @@ class MoviePage {
 }
 
 class MovieSection {
+    static genresNames(movie){
+        return movie.genres.map(el => el.name).join(", ")
+    }
     static renderMovie(movie) {
+        console.log(movie)
         MoviePage.container.innerHTML = `
       <div class="row">
         <div class="col-md-4">
@@ -185,7 +189,7 @@ class MovieSection {
         </div>
         <div class="col-md-8">
           <h2 id="movie-title">${movie.title}</h2>
-          <p id="genres">${movie.genres}</p>
+          <p id="genres">${this.genresNames(movie)}</p>
           <p id="movie-release-date">${movie.releaseDate}</p>
           <p id="movie-runtime">${movie.runtime}</p>
           <h3>Overview:</h3>
@@ -200,12 +204,18 @@ class MovieSection {
 class Movie {
     static BACKDROP_BASE_URL = 'http://image.tmdb.org/t/p/w780';
     constructor(json) {
+        console.log(json)
         this.id = json.id;
+        this.genres = json.genres;//arr of obj
         this.title = json.title;
         this.releaseDate = json.release_date;
         this.runtime = json.runtime + " minutes";
         this.overview = json.overview;
         this.backdropPath = json.backdrop_path;
+        this.language = json.original_language;
+        this.production = json.production_companies;//arr of obj
+        this.voteCount = json.vote_count;
+        this.voteAverage = json.vote_average
     }
 
     get backdropUrl() {
@@ -333,6 +343,7 @@ class SingleActorPage{
                         return container.innerHTML = `<h1>This is a tv show and it not present in movie database</h1>`
                     }
                    let movie = new Movie(actor.knownFor[i])
+                   console.log("mov",actor.knownFor[i])
                    MovieSection.renderMovie(movie)
                 
                 })
