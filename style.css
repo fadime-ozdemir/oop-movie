@@ -5,9 +5,9 @@
     box-sizing: border-box;
 }
 a, a:hover{
-    text-decoration: none;
-    
+    text-decoration: none;   
 }
+
 
 li{
     list-style: none;
@@ -22,10 +22,6 @@ body{
 
 .container {
     padding-top: 3rem;
-}
-
-#actors {
-    margin: 2.5rem 1rem 0 0;
 }
 
 
@@ -77,4 +73,8 @@ input[type="search"]::placeholder{
 }
 input[type="search"]:focus {
     outline: none;
+}
+
+.fullPage{
+    height: 80vh;
 }

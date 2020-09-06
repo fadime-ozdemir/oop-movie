@@ -54,7 +54,7 @@ class APIService {//all fetching
         const url = APIService._constructUrl(`person/popular`)
         const response = await fetch(url);
         const data = await response.json()
-        console.log("All Actors", data)
+        // console.log("All Actors", data)
         return data.results.map(actor => new Actor(actor))
     }
     
@@ -62,7 +62,7 @@ class APIService {//all fetching
         const url = APIService._constructUrl(`person/${actorId}`)
         const response = await fetch(url)
         const data = await response.json()
-        console.log("fetch actor",data)
+        // console.log("fetch actor",data)
         return new Actor(data)
     }
 
@@ -72,7 +72,7 @@ class APIService {//all fetching
         const url = APIService._constructUrl(`search/multi`) + restOfurl
         const response = await fetch(url);
         const data = await response.json()
-        console.log(data)
+        // console.log(data)
         return data
         }
         catch(err){
@@ -106,10 +106,17 @@ class APIService {//all fetching
 
 class HomePage {
     static container = document.getElementById('container');
+
     static renderMovies(movies) {
         movies.forEach(movie => {
+            this.container.classList.add("d-flex");
+            this.container.classList.add("flex-wrap");
             const movieDiv = document.createElement("div");
             const movieImage = document.createElement("img");
+            movieImage.classList.add("img-fluid");
+            movieDiv.classList.add("col-lg-4");
+            movieDiv.classList.add("col-md-6");
+            movieDiv.classList.add("p-4");
             movieImage.style.cursor = "pointer";
             movieImage.src = `${movie.backdropUrl}`;
             const movieTitle = document.createElement("h3");
@@ -128,31 +135,53 @@ class HomePage {
 class SearchPage{
     static container = document.getElementById('container');
     static renderSearch(data){
-        if(data===undefined) { alert("movie isn't present")}
+        if(data===undefined) {
+            alert("Type a movie or an actor's name")
+          /*   const btn= document.querySelector("button");
+            btn.setAttribute("data-toggle","modal");
+            btn.setAttribute("data-target", "#modal")
+            const divModal= document.createElement("div");
+            divModal.classList.add("modal-dialog");
+            divModal.setAttribute("id", "modal");
+            divModal.classList.add("modal-lg");
+            this.container.appendChild(divModal) */
+        }
         else{
         this.container.innerHTML = "";
         data.forEach(element => {
-            
+            console.log("renderSearch", element)
+            this.container.classList.add("d-flex");
+            this.container.classList.add("flex-wrap");
             const elementDiv = document.createElement("div");
+            const titleElement = document.createElement("h1");
             const elementImage = document.createElement("img");
+            elementImage.classList.add("img-fluid");
+            elementDiv.classList.add("col-lg-4");
+            elementDiv.classList.add("col-md-6");
+            elementDiv.classList.add("p-4");
             elementImage.style.cursor = "pointer";
             if (element.media_type === "person"){
                 const elemInstance = new Actor(element)
                 elementImage.src = `${elemInstance.backdropUrl}`;
+                titleElement.innerText = `${elemInstance.name}`;
                 elementImage.addEventListener("click", function() {
-                    SingleActorPage.renderActor(elemInstance);//change in actor, now fetch all actors!!! make actorPage
+                    SingleActorPage.renderActor(elemInstance);
                 });
+                elementDiv.appendChild(titleElement);
                 elementDiv.appendChild(elementImage);
                 this.container.appendChild(elementDiv);
             }
             else if(element.media_type ==="movie"){
                 const elemInstance = new Movie(element)
+                console.log(elemInstance.backdropUrl)
+                titleElement.innerText = `${elemInstance.title}`;
                 elementImage.src = `${elemInstance.backdropUrl}`
                 
                 elementImage.addEventListener("click", function() {
                     Movies.run(elemInstance);
-                });
-               
+                })
+                
+                elementDiv.appendChild(titleElement);
                 elementDiv.appendChild(elementImage);
                 this.container.appendChild(elementDiv);
             }
@@ -181,11 +210,11 @@ class MovieSection {
         return movie.genres.map(el => el.name).join(", ")
     }
     static renderMovie(movie) {
-        console.log(movie)
+        // console.log(movie)
         MoviePage.container.innerHTML = `
       <div class="row">
         <div class="col-md-4">
-          <img id="movie-backdrop" src=${movie.backdropUrl}> 
+          <img id="movie-backdrop" src=${movie.backdropUrl} class= "img-fluid"> 
         </div>
         <div class="col-md-8">
           <h2 id="movie-title">${movie.title}</h2>
@@ -204,14 +233,14 @@ class MovieSection {
 class Movie {
     static BACKDROP_BASE_URL = 'http://image.tmdb.org/t/p/w780';
     constructor(json) {
-        console.log(json)
+        // console.log(json)
         this.id = json.id;
         this.genres = json.genres;//arr of obj
         this.title = json.title;
         this.releaseDate = json.release_date;
         this.runtime = json.runtime + " minutes";
         this.overview = json.overview;
-        this.backdropPath = json.backdrop_path;
+        this.backdropPath = json.backdrop_path? json.backdrop_path : json.poster_path;
         this.language = json.original_language;
         this.production = json.production_companies;//arr of obj
         this.voteCount = json.vote_count;
@@ -257,8 +286,15 @@ class ActorsPage {
         //clear container
         this.container.innerHTML = "";
         actors.forEach(actor => {
+            this.container.classList.add("d-flex");
+            this.container.classList.add("flex-wrap");
             const actorDiv = document.createElement("div");
             const actorImage = document.createElement("img");
+            actorImage.classList.add("img-fluid");
+            actorDiv.classList.add("col-lg-4");
+            actorDiv.classList.add("col-md-6");
+            actorDiv.classList.add("p-4");
+
             actorImage.style.cursor = "pointer";
             actorImage.src = `${actor.backdropUrl}`;
             const actorName = document.createElement("h3");
@@ -291,7 +327,7 @@ class SingleActorPage{
        container.innerHTML = `
       <div class="row">
         <div class="col-md-4">
-          <img id="movie-backdrop" src=${actor.backdropUrl}> 
+          <img id="movie-backdrop" src=${actor.backdropUrl} class= "img-fluid"> 
         </div>
         <div class="col-md-8">
           <h2 id="actor-name">${actor.name}</h2>
@@ -309,7 +345,7 @@ class SingleActorPage{
            ${ 
             
             actor.knownFor.map(movie=>{
-                console.log(movie.original_name, movie.original_title )
+                // console.log(movie.original_name, movie.original_title )
                 if (movie.media_type==="tv"){ 
                     
                    return `<p class= "related-show" style="cursor:pointer">${movie.original_name}</p>`
@@ -334,16 +370,15 @@ class SingleActorPage{
             for(let i= 0; i<arrP.length; i++){
                 arrP[i].addEventListener("click", async (e)=> {
                     e.preventDefault()
-                    // console.log("movies", movie)
-                    //if actor.knownFor[i] create a page which shows this is a tv show and
-                    //  it not present in movie database
-                    if (actor.knownFor[i].original_name) {
-                        const container = document.querySelector("#container")
-                        container.innerHTML = ""
-                        return container.innerHTML = `<h1>This is a tv show and it not present in movie database</h1>`
+                        if (actor.knownFor[i].original_name) {
+                        const container = document.querySelector("#container");
+                        container.innerHTML = "";
+                        const div = document.createElement("div");
+                        div.classList.add("fullPage");
+                        div.innerHTML = `<h1>This is a tv show and it is not present in movie database</h1>`;
+                        return container.appendChild(div);
                     }
                    let movie = await APIService.fetchMovie(actor.knownFor[i].id)
-                //    console.log("mov",actor.knownFor[i])
                    MovieSection.renderMovie(movie)
                 
                 })
@@ -380,7 +415,7 @@ searchBtn.addEventListener("click", async function(e){
     
     // console.log(input.value)
     srchResults = await APIService.fetchSearch(input.value)
-    console.log(srchResults)
+    console.log("srcResult", srchResults)
     SearchPage.renderSearch(srchResults.results)
     })
 
