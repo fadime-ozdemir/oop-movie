@@ -3,10 +3,16 @@
 class App {
     static async run() {
         const movies = await APIService.fetchMovies()
+        const home = document.querySelector("#home")
+        const logo = document.querySelector(".navbar-brand")
         HomePage.renderMovies(movies);
         APIService.fetchGenres();
-        const home = document.querySelector("#home")
         home.addEventListener("click", () => {
+            const container = document.querySelector("#container")
+            container.innerHTML = "";
+            HomePage.renderMovies(movies)
+        })
+        logo.addEventListener("click", () => {
             const container = document.querySelector("#container")
             container.innerHTML = "";
             HomePage.renderMovies(movies)
@@ -46,7 +52,8 @@ class APIService {//all fetching
             let dropdownEl = document.createElement("a")
             dropdownEl.className = "dropdown-item";
             dropdownEl.innerText = genre;
-            dropdownMenu.appendChild(dropdownEl)
+            dropdownEl.style.cursor = "pointer";
+            dropdownMenu.appendChild(dropdownEl);
         })
     }
 
@@ -160,9 +167,15 @@ class SearchPage{
             elementDiv.classList.add("col-md-6");
             elementDiv.classList.add("p-4");
             elementImage.style.cursor = "pointer";
+            
             if (element.media_type === "person"){
                 const elemInstance = new Actor(element)
-                elementImage.src = `${elemInstance.backdropUrl}`;
+                if(elemInstance.backdropUrl){
+                    elementImage.src = `${elemInstance.backdropUrl}`;
+                }else{
+                    elementImage.src= "./img/NoThumbnail.png";
+                }
+                
                 titleElement.innerText = `${elemInstance.name}`;
                 elementImage.addEventListener("click", function() {
                     SingleActorPage.renderActor(elemInstance);
@@ -174,8 +187,13 @@ class SearchPage{
             else if(element.media_type ==="movie"){
                 const elemInstance = new Movie(element)
                 console.log(elemInstance.backdropUrl)
+                if(elemInstance.backdropUrl){
+                    elementImage.src = `${elemInstance.backdropUrl}`
+                }else{
+                    elementImage.src= "./img/NoThumbnail.png";
+                }
                 titleElement.innerText = `${elemInstance.title}`;
-                elementImage.src = `${elemInstance.backdropUrl}`
+                
                 
                 elementImage.addEventListener("click", function() {
                     Movies.run(elemInstance);
@@ -194,7 +212,7 @@ class Movies {
     static async run(movie) {
         const movieData = await APIService.fetchMovie(movie.id)
         MoviePage.renderMovieSection(movieData);
-        APIService.fetchActors(movieData)
+        // APIService.fetchActors(movieData)
     }
 }
 
@@ -205,24 +223,89 @@ class MoviePage {
     }
 }
 
+async function  fetchCredits(id) {
+    const resp= await APIService.fetchMovieCredits(id);
+    console.log("resp", typeof resp)
+    const directors = await resp.crew.filter(crew=>crew.job==="Director")
+    // data.crew[??].job: "Director"
+    console.log(typeof directors)
+    console.log(directors)
+    return directors
+}
+
 class MovieSection {
     static genresNames(movie){
         return movie.genres.map(el => el.name).join(", ")
     }
-    static renderMovie(movie) {
-        // console.log(movie)
+    static async renderMovie(movie) {
+        // console.log(movie.language)
+        // console.log(movie.production)
+      /* `<iframe width="560" height="315" src="https://www.youtube.com/embed/${trailerUrl.results[0].key}"
+         frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" 
+         allowfullscreen></iframe>`  */
+        const trailerUrl = await APIService.fetchTrailer(movie.id)
+        console.log("hi",trailerUrl.results[0].key)
+        const directors = await fetchCredits(movie.id)
         MoviePage.container.innerHTML = `
       <div class="row">
         <div class="col-md-4">
-          <img id="movie-backdrop" src=${movie.backdropUrl} class= "img-fluid"> 
+        <img id="movie-backdrop" src=${movie.backdropUrl?movie.backdropUrl:"./img/NoThumbnail.png"}> 
         </div>
         <div class="col-md-8">
-          <h2 id="movie-title">${movie.title}</h2>
-          <p id="genres">${this.genresNames(movie)}</p>
-          <p id="movie-release-date">${movie.releaseDate}</p>
-          <p id="movie-runtime">${movie.runtime}</p>
-          <h3>Overview:</h3>
-          <p id="movie-overview">${movie.overview}</p>
+        <h2 id="movie-title">${movie.title}</h2>
+          <div class= "d-flex flex-wrap">
+            <div class="left">
+                <p id="genres">${this.genresNames(movie)}</p>
+                <div class="d-flex">
+                    <p>Language:</p>
+                    <p>&nbsp;</p>
+                    <p id="languages">${movie.language}</p>
+                </div>
+                <div class="d-flex">
+                    <p>Release Date:</p>
+                    <p>&nbsp;</p>
+                    <p id="movie-release-date">${movie.releaseDate}</p>
+                </div>
+                <div class="d-flex">
+                    <p>Runtime:</p>
+                    <p>&nbsp;</p>
+                    <p id="movie-runtime">${movie.runtime}</p>
+                </div>
+                <div class="d-flex" >
+                    <p>Vote Count: </p>
+                    <p>&nbsp;</p>
+                    <p>${movie.voteCount}  </p>
+                    <p>&nbsp;&nbsp;&nbsp;&nbsp;</p>
+                    <p>Vote Average: </p>
+                    <p>&nbsp;</p>
+                    <p>${movie.voteAverage}
+                </div>
+            </div>
+            <div class="right d-flex flex-wrap">
+                <p> <strong>Director(s):</strong> </p>
+                <p>&nbsp;</p>
+                ${directors.map(director => `<span>${(director.name)}</span>`)}
+             </div>
+            </div>
+          </div>
+          <div class="d-flex flex-wrap">
+            <div class="col-md-8">
+            <h3>Overview:</h3>
+            <p id="movie-overview">${movie.overview}</p>
+            <Production Companies:</p>
+            <div>${
+                movie.production.map(company=>{
+                    const logoSrc = movie.backdropUrlProduction(company.logo_path)?movie.backdropUrlProduction(company.logo_path): "./img/logo1.svg"
+                    return `
+                    <div class="d-flex">
+                    <p>${company.name}</p>
+                    <p>&nbsp;</p>
+                    <img src=${logoSrc} class="logoCompany" alt="logoCompany"/>
+                    </div>`
+                }).join(" ")}
+            </div>
+          </div>
+         
         </div>
       </div>
       <h3>Actors:</h3>
@@ -246,7 +329,9 @@ class Movie {
         this.voteCount = json.vote_count;
         this.voteAverage = json.vote_average
     }
-
+    backdropUrlProduction(path) {
+        return path ? Movie.BACKDROP_BASE_URL + path : "";
+    }
     get backdropUrl() {
         return this.backdropPath ? Movie.BACKDROP_BASE_URL + this.backdropPath : "";
     }
@@ -327,7 +412,7 @@ class SingleActorPage{
        container.innerHTML = `
       <div class="row">
         <div class="col-md-4">
-          <img id="movie-backdrop" src=${actor.backdropUrl} class= "img-fluid"> 
+          <img id="movie-backdrop" src=${actor.backdropUrl?actor.backdropUrl:"./img/NoThumbnail.png"} > 
         </div>
         <div class="col-md-8">
           <h2 id="actor-name">${actor.name}</h2>
@@ -392,7 +477,7 @@ function showAbout(){
     const container = document.getElementById('container');
     container.innerHTML = "";
     container.innerHTML = `
-      <div>
+      <div class="fullPage">
         <h1>
             About:
         </h1>

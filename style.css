@@ -76,5 +76,30 @@ input[type="search"]:focus {
 }
 
 .fullPage{
-    height: 80vh;
+    height: 60vh;
+}
+
+.img-fluid:hover {
+    position:relative;
+    top:-25px;
+    left:-2.5px;
+    width:500px;
+    height:auto;
+    display:block;
+    z-index:999;
+    box-shadow: -1px 18px 31px -4px rgba(0,0,0,0.75);
+}
+
+.related-show:hover{
+    background-color: #11998e;
+    color: #38ef7d;
+    border-radius: 2px;
+}
+
+.logoCompany{
+    height: 2rem;
+}
+
+span{
+    padding-left: .2rem;
 }
