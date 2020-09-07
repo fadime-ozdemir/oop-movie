@@ -223,15 +223,21 @@ class MoviePage {
     }
 }
 
-async function  fetchCredits(id) {
+async function  fetchDirectors(id) {
     const resp= await APIService.fetchMovieCredits(id);
-    console.log("resp", typeof resp)
     const directors = await resp.crew.filter(crew=>crew.job==="Director")
+    console.log(resp.cast)
     // data.crew[??].job: "Director"
-    console.log(typeof directors)
-    console.log(directors)
     return directors
 }
+
+async function fetchCast(id){
+    const resp = await APIService.fetchMovieCredits(id);
+    const cast  = resp.cast.slice(0,5);
+    return cast
+}
+
+
 
 class MovieSection {
     static genresNames(movie){
@@ -244,8 +250,11 @@ class MovieSection {
          frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" 
          allowfullscreen></iframe>`  */
         const trailerUrl = await APIService.fetchTrailer(movie.id)
-        console.log("hi",trailerUrl.results[0].key)
-        const directors = await fetchCredits(movie.id)
+        // console.log("hi",trailerUrl.results[0].key)
+        const directors = await fetchDirectors(movie.id);
+        const castMembers=  await fetchCast(movie.id);
+        let similarMovies= await APIService.fetchSimilarMovies(movie.id);
+        similarMovies= similarMovies.results.slice(0,5)
         MoviePage.container.innerHTML = `
       <div class="row">
         <div class="col-md-4">
@@ -305,11 +314,54 @@ class MovieSection {
                 }).join(" ")}
             </div>
           </div>
-         
+            <div class="col-lg-4">
+                <iframe width="100%" height="215" src="https://www.youtube.com/embed/${trailerUrl.results[0].key}"
+                frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen></iframe>
+            </div>
         </div>
       </div>
-      <h3>Actors:</h3>
+      <div class="d-flex flex-column">
+        <h3>Actors:</h3>
+        <div class="cast">
+                    ${
+                        castMembers.map(actor => `<p class="cast-member" style="cursor:pointer"> ${actor.name}</p>`).join(" ")
+                    }
+        </div>
+      </div>
+      <div >
+        <h3>Similar Movies:</h3>
+        <div class="similarMovies d-flex flex-wrap ">
+        ${similarMovies.map(similarMovie =>{
+            console.log("similar-movie",similarMovie)
+            return `<div class="similar-movie  col-md-3 col-lg-2 d-flex flex-wrap justify-content-center">
+                            <h6>${similarMovie.title}</h6>
+                            <img style= "cursor:pointer" src="${movie.backdropUrlProduction(similarMovie.backdrop_path)}" class="img-fluid " />
+                        </div>`
+        }).join(" ")}
+        </div>
+      </div>
     `;
+    const similarMoviesSelect = document.querySelectorAll(".similar-movie");
+    for(let i=0; i<similarMoviesSelect .length; i++){
+        similarMoviesSelect[i].addEventListener("click", async ()=>{
+            const similarMovie = await APIService.fetchMovie(similarMovies[i].id)
+            MovieSection.renderMovie(similarMovie)
+        })
+    }
+
+    /* const castMembersEvent= document.querySelectorAll(".cast-member")
+    for(let i=0; i<castMembersEvent.length; i++){
+        
+        castMembersEvent[i].addEventListener("click", async (e)=>{
+            e.preventDefault()
+            const fetchCastMember= await APIService.fetchActor(castMembers[i].id)
+            console.log("actor",fetchCastMember)
+            console.log("castMemeber", await SingleActorPage.renderActor(fetchCastMember))
+            await SingleActorPage.renderActor(fetchCastMember)
+        })
+    } */
+
     }
 }
 
@@ -428,7 +480,6 @@ class SingleActorPage{
             <div className="knownfor">
                 
            ${ 
-            
             actor.knownFor.map(movie=>{
                 // console.log(movie.original_name, movie.original_title )
                 if (movie.media_type==="tv"){ 
@@ -443,7 +494,7 @@ class SingleActorPage{
                 
 
             }).join("")
-           
+            
         }
             </div>
           
