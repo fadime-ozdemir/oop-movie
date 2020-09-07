@@ -11,11 +11,15 @@ a, a:hover{
 
 li{
     list-style: none;
+    color:#a5a5a5;
 }
 body{
-    background: #00ff6265;
-    
+    /* background: #00ff6265; */
+    background: #141414;
+    color: #a5a5a5;
 }
+
+
 #movie-backdrop {
     width: 100%;
 }
@@ -31,9 +35,12 @@ body{
 
 .navbar{
     font-size: 1.5rem;
-    background: #11998e;  /* fallback for old browsers */
-    background: -webkit-linear-gradient(to right, #38ef7d, #11998e);  /* Chrome 10-25, Safari 5.1-6 */
-    background: linear-gradient(to right, #38ef7d, #11998e); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    /* background: #11998e;  fallback for old browsers */
+    /* background: -webkit-linear-gradient(to right, #38ef7d, #11998e);  Chrome 10-25, Safari 5.1-6 */
+    /* background: linear-gradient(to right, #38ef7d, #11998e); W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    background: #200122;  /* fallback for old browsers */
+    background: -webkit-linear-gradient(to left, #6f0000, #200122);  /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to left, #6f0000, #200122); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
     width: 100%;
 } 
 
@@ -41,7 +48,7 @@ a.github {
     margin-left: .3rem;
     margin-right: .6rem;
     margin-bottom: 2rem;
-    color: black;
+    color: #e5e5e5;
 }
 a.github:hover{
     opacity: .7;
@@ -49,57 +56,126 @@ a.github:hover{
 footer{
     font-size: 1.5rem;
     padding: .2rem;
-    background: -webkit-linear-gradient(to right, #38ef7d, #11998e);  /* Chrome 10-25, Safari 5.1-6 */
-    background: linear-gradient(to right, #38ef7d, #11998e); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    background: #200122;  /* fallback for old browsers */
+    background: -webkit-linear-gradient(to left, #6f0000, #200122);  /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to left, #6f0000, #200122); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
     width: 100%
 }
 
 .btn {
-    border-color: #38ef7d;  
-    color:#38ef7d; 
+    /* border-color: #38ef7d;   */
+    /* color:#38ef7d;  */
+    /* background-color: #e5e5e5; */
+    border-color: #e5e5e5;
+    color: #e5e5e5;
     font-size: 1.5rem ;
 }
 .btn:hover{
-    background-color: #38ef7d; 
-    border-color: #38ef7d;
-    color: #11998e;
+    /* background-color: #38ef7d;  */
+    /* border-color: #38ef7d; */
+    border-color: #e5e5e5;
+    background-color: #e5e5e5;
+    color: #6f0000;
+    /* color: #11998e; */
+}
+
+.btn:focus, .mt-2:focus, .my-2:focus {
+    color: none;
+    background-color: none;
+    box-shadow: 0 0 5px white;
+    border: 1px solid white;
+}
+
+input[type=search]:focus, textarea:focus {
+    box-shadow: 0 0 5px white;
+    border: 1px solid white;
+  }
+
+.btn-outline-success:hover{
+    background-color: #e5e5e5;
+    color: black;
 }
 
 input[type="search"]{
-    border-color: #38ef7d;
+    border-color: #e5e5e5;
 }
 input[type="search"]::placeholder{
-    color: #11998ea1;
+    /* color: #11998ea1; */
+    color: #e5e5e5;
 }
 input[type="search"]:focus {
     outline: none;
 }
 
 .fullPage{
-    height: 60vh;
+    height: 70vh;
+}
+.fullPage a{
+    color: #e5e5e5;
+}
+.fullPage a:hover{
+   color: #989898;
+   text-decoration: underline;
 }
 
+div[class="img-fluid"] {
+    position: absolute;
+    transition: all .8s ease;
+}
 .img-fluid:hover {
-    position:relative;
-    top:-25px;
-    left:-2.5px;
-    width:500px;
+    position: relative;
+    transform: scale(1.05) translateY(-0.5rem);
+    width:500px; 
     height:auto;
     display:block;
     z-index:999;
-    box-shadow: -1px 18px 31px -4px rgba(0,0,0,0.75);
+    box-shadow: -1px 18px 31px -4px rgba(70, 55, 55, 0.75);
 }
 
 .related-show:hover{
-    background-color: #11998e;
-    color: #38ef7d;
+    background-color: #e5e5e5;
+    color: #ac2f20;
     border-radius: 2px;
 }
 
 .logoCompany{
     height: 2rem;
+    background-color: #989898;
 }
 
 span{
     padding-left: .2rem;
 }
+
+.navbar-light .navbar-nav .nav-link:visited,
+.navbar-light .navbar-nav .nav-link:link {
+    color: #e5e5e5;
+}
+
+.navbar-light .navbar-nav .nav-link:hover{
+    color: #a5a5a5;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6{
+    color: #e5e5e5;
+}
+
+  .dropdown-item:visited,
+  .dropdown-item:active
+{
+    background-color: #989898;
+
+}
+
+
+@media screen and (max-width: 425px) {
+    footer {
+      font-size: 1.1rem;
+    }
+  }
+

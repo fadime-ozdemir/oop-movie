@@ -38,6 +38,14 @@ class APIService {//all fetching
         //?api_key=bf7ab359462818f32eb7b959cdf93a06
         return `${this.TMDB_BASE_URL}/${path}?api_key=${atob('NTQyMDAzOTE4NzY5ZGY1MDA4M2ExM2M0MTViYmM2MDI=')}`;
     }
+    static async fetchMoviesOfGenre(genreId){
+        const urlStart= APIService._constructUrl(`discover/movie`);
+        const url = urlStart + `&with_genres=${genreId}`;
+        const response = await fetch(url);
+        const data = await response.json();
+        return data
+    }
+
     static async fetchGenres(){
         const dropdownMenu = document.querySelector(".dropdown-menu")
         const url = APIService._constructUrl(`genre/movie/list`)
@@ -46,16 +54,25 @@ class APIService {//all fetching
         
         ///discover/movie?with_genres=18
         const genres = data.genres.map(genre => genre.name)
-        // console.log(genres)
-        genres.forEach(genre => {
+        const ids = data.genres.map(genre=>genre.id)
+        data.genres.forEach(genre => {
             //`<a class="dropdown-item" href="#">${genre}</a>`
             let dropdownEl = document.createElement("a")
             dropdownEl.className = "dropdown-item";
-            dropdownEl.innerText = genre;
+            dropdownEl.innerText = genre.name;
             dropdownEl.style.cursor = "pointer";
             dropdownMenu.appendChild(dropdownEl);
+            dropdownEl.addEventListener("click", async () =>{
+            const genreMovies = await APIService.fetchMoviesOfGenre(genre.id)
+            // HomePage.renderMovies(genreMovies.results)
+            console.log(genreMovies.results)
+            const arrMovieObj = genreMovies.results.map(movie=>new Movie(movie))
+            GenrePage.renderMovies(arrMovieObj)
+            })
         })
     }
+
+    
 
     static async fetchAllActors(){
         const url = APIService._constructUrl(`person/popular`)
@@ -115,6 +132,7 @@ class HomePage {
     static container = document.getElementById('container');
 
     static renderMovies(movies) {
+        this.container.innerHTML= "";
         movies.forEach(movie => {
             this.container.classList.add("d-flex");
             this.container.classList.add("flex-wrap");
@@ -254,6 +272,7 @@ class MovieSection {
         const directors = await fetchDirectors(movie.id);
         const castMembers=  await fetchCast(movie.id);
         let similarMovies= await APIService.fetchSimilarMovies(movie.id);
+        console.log(similarMovies)
         similarMovies= similarMovies.results.slice(0,5)
         MoviePage.container.innerHTML = `
       <div class="row">
@@ -315,7 +334,7 @@ class MovieSection {
             </div>
           </div>
             <div class="col-lg-4">
-                <iframe width="100%" height="215" src="https://www.youtube.com/embed/${trailerUrl.results[0].key}"
+                <iframe width="100%" height="215" src="https://www.youtube.com/embed/${trailerUrl.results[0]? trailerUrl.results[0].key: ""}"
                 frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" 
                 allowfullscreen></iframe>
             </div>
@@ -330,7 +349,8 @@ class MovieSection {
         </div>
       </div>
       <div >
-        <h3>Similar Movies:</h3>
+      ${similarMovies.length > 0? (
+        `<h3>Similar Movies:</h3>
         <div class="similarMovies d-flex flex-wrap ">
         ${similarMovies.map(similarMovie =>{
             console.log("similar-movie",similarMovie)
@@ -339,9 +359,9 @@ class MovieSection {
                             <img style= "cursor:pointer" src="${movie.backdropUrlProduction(similarMovie.backdrop_path)}" class="img-fluid " />
                         </div>`
         }).join(" ")}
-        </div>
-      </div>
-    `;
+        </div>`
+      ): ""}
+    </div>`;
     const similarMoviesSelect = document.querySelectorAll(".similar-movie");
     for(let i=0; i<similarMoviesSelect .length; i++){
         similarMoviesSelect[i].addEventListener("click", async ()=>{
@@ -533,14 +553,41 @@ function showAbout(){
             About:
         </h1>
         <p>
-            Hello, what's up
+        This website was designed by <a href="https://github.com/fadime94" target="_blank">Fadime OZDEMIR</a> and <a href="https://github.com/majdajroudi" target="_blank">Majd AJROUDI </a>as a project for the <a href="https://www.re-coded.com/web-overview" target="_blank">Re:coded Frontend Development Bootcamp</a>.
+        The database is provided by themoviedb.org was used to fetch the data of the movies and present it as shown in the website.
+        
         </p>
       </div>  
     `;
 }
 
-function showSearches(){
+class GenrePage {
+    static container = document.getElementById('container');
 
+    static renderMovies(movies) {
+        this.container.innerHTML= "";
+        movies.forEach(movie => {
+            this.container.classList.add("d-flex");
+            this.container.classList.add("flex-wrap");
+            const movieDiv = document.createElement("div");
+            const movieImage = document.createElement("img");
+            movieImage.classList.add("img-fluid");
+            movieDiv.classList.add("col-lg-4");
+            movieDiv.classList.add("col-md-6");
+            movieDiv.classList.add("p-4");
+            movieImage.style.cursor = "pointer";
+            movieImage.src = `${movie.backdropUrl}`;
+            const movieTitle = document.createElement("h3");
+            movieTitle.textContent = `${movie.title}`;
+            movieImage.addEventListener("click", function() {
+                Movies.run(movie);
+            });
+
+            movieDiv.appendChild(movieTitle);
+            movieDiv.appendChild(movieImage);
+            this.container.appendChild(movieDiv);
+        })
+    }
 }
 
 const searchBtn = document.querySelector("[type='submit']")
