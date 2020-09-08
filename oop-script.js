@@ -530,7 +530,8 @@ function showAbout(){
             About:
         </h1>
         <p>
-        This website was designed by <a href="https://github.com/fadime94" target="_blank">Fadime OZDEMIR</a> and <a href="https://github.com/majdajroudi" target="_blank">Majd AJROUDI </a>as a project for the <a href="https://www.re-coded.com/web-overview" target="_blank">Re:coded Frontend Development Bootcamp</a>.
+        This website was designed by <a href="https://github.com/fadime94" target="_blank">Fadime OZDEMIR</a> and <a href="https://github.com/majdajroudi" target="_blank">Majd AJROUDI </a>as a project for the <a href="https://www.re-coded.com/web-overview" target="_blank">Re:coded Frontend Development Bootcamp</a>.<br/>
+        Object oriented programming techniques were applied to add the functionalities provided in the website using Javascript.<br/>
         The database is provided by themoviedb.org was used to fetch the data of the movies and present it as shown in the website.
         
         </p>
