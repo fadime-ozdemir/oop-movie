@@ -1,5 +1,6 @@
 //the API documentation site https://developers.themoviedb.org/3/
 
+// Renders the start of the App
 class App {
     static async run() {
         const movies = await APIService.fetchMovies()
@@ -20,7 +21,8 @@ class App {
     }
 }
 
-class APIService {//all fetching
+//Fetch all the data
+class APIService {
     static TMDB_BASE_URL = 'https://api.themoviedb.org/3';
     static async fetchMovies() {
         const url = APIService._constructUrl(`movie/now_playing`)
@@ -43,20 +45,20 @@ class APIService {//all fetching
         const url = urlStart + `&with_genres=${genreId}`;
         const response = await fetch(url);
         const data = await response.json();
-        return data
+        return data;
     }
 
     static async fetchGenres(){
-        const dropdownMenu = document.querySelector(".dropdown-menu")
-        const url = APIService._constructUrl(`genre/movie/list`)
+        const dropdownMenu = document.querySelector(".dropdown-menu");
+        const url = APIService._constructUrl(`genre/movie/list`);
         const response = await fetch(url);
-        const data = await response.json()
+        const data = await response.json();
         
-        ///discover/movie?with_genres=18
+        
         const genres = data.genres.map(genre => genre.name)
         const ids = data.genres.map(genre=>genre.id)
-        data.genres.forEach(genre => {
-            //`<a class="dropdown-item" href="#">${genre}</a>`
+        data.genres.forEach(genre => { 
+            //we append an event listener of each genre of dropdown menu
             let dropdownEl = document.createElement("a")
             dropdownEl.className = "dropdown-item";
             dropdownEl.innerText = genre.name;
@@ -64,8 +66,6 @@ class APIService {//all fetching
             dropdownMenu.appendChild(dropdownEl);
             dropdownEl.addEventListener("click", async () =>{
             const genreMovies = await APIService.fetchMoviesOfGenre(genre.id)
-            // HomePage.renderMovies(genreMovies.results)
-            console.log(genreMovies.results)
             const arrMovieObj = genreMovies.results.map(movie=>new Movie(movie))
             GenrePage.renderMovies(arrMovieObj)
             })
@@ -78,7 +78,6 @@ class APIService {//all fetching
         const url = APIService._constructUrl(`person/popular`)
         const response = await fetch(url);
         const data = await response.json()
-        // console.log("All Actors", data)
         return data.results.map(actor => new Actor(actor))
     }
     
@@ -86,7 +85,6 @@ class APIService {//all fetching
         const url = APIService._constructUrl(`person/${actorId}`)
         const response = await fetch(url)
         const data = await response.json()
-        // console.log("fetch actor",data)
         return new Actor(data)
     }
 
@@ -96,7 +94,6 @@ class APIService {//all fetching
         const url = APIService._constructUrl(`search/multi`) + restOfurl
         const response = await fetch(url);
         const data = await response.json()
-        // console.log(data)
         return data
         }
         catch(err){
@@ -109,6 +106,20 @@ class APIService {//all fetching
         const response = await fetch(url)
         const data = await response.json()
         return data;
+    }
+
+        //fetch directors and actors 
+    static async fetchDirectors(id) {
+        const resp= await APIService.fetchMovieCredits(id);
+        const directors = await resp.crew.filter(crew=>crew.job==="Director")
+        // data.crew[??].job: "Director"
+        return directors
+    }
+
+    static async fetchCast(id){
+        const resp = await APIService.fetchMovieCredits(id);
+        const cast  = resp.cast.slice(0,5);
+        return cast
     }
 
     
@@ -134,6 +145,7 @@ class HomePage {
     static renderMovies(movies) {
         this.container.innerHTML= "";
         movies.forEach(movie => {
+            //create bootstrap col class for each div wiht title + img
             this.container.classList.add("d-flex");
             this.container.classList.add("flex-wrap");
             const movieDiv = document.createElement("div");
@@ -161,20 +173,14 @@ class SearchPage{
     static container = document.getElementById('container');
     static renderSearch(data){
         if(data===undefined) {
+            //if there is no value in input = alert to insert 
             alert("Type a movie or an actor's name")
-          /*   const btn= document.querySelector("button");
-            btn.setAttribute("data-toggle","modal");
-            btn.setAttribute("data-target", "#modal")
-            const divModal= document.createElement("div");
-            divModal.classList.add("modal-dialog");
-            divModal.setAttribute("id", "modal");
-            divModal.classList.add("modal-lg");
-            this.container.appendChild(divModal) */
         }
         else{
         this.container.innerHTML = "";
         data.forEach(element => {
-            console.log("renderSearch", element)
+            //render movie or actor from search-fetch 
+            //add event which call single movie page or single actor page
             this.container.classList.add("d-flex");
             this.container.classList.add("flex-wrap");
             const elementDiv = document.createElement("div");
@@ -204,7 +210,6 @@ class SearchPage{
             }
             else if(element.media_type ==="movie"){
                 const elemInstance = new Movie(element)
-                console.log(elemInstance.backdropUrl)
                 if(elemInstance.backdropUrl){
                     elementImage.src = `${elemInstance.backdropUrl}`
                 }else{
@@ -225,15 +230,15 @@ class SearchPage{
     }
 }
 
-
+// Uses run method to fetch single movies
 class Movies {
     static async run(movie) {
         const movieData = await APIService.fetchMovie(movie.id)
         MoviePage.renderMovieSection(movieData);
-        // APIService.fetchActors(movieData)
     }
 }
 
+// Renders all the movies that have been fetched
 class MoviePage {
     static container = document.getElementById('container');
     static renderMovieSection(movie) {
@@ -241,38 +246,18 @@ class MoviePage {
     }
 }
 
-async function  fetchDirectors(id) {
-    const resp= await APIService.fetchMovieCredits(id);
-    const directors = await resp.crew.filter(crew=>crew.job==="Director")
-    console.log(resp.cast)
-    // data.crew[??].job: "Director"
-    return directors
-}
 
-async function fetchCast(id){
-    const resp = await APIService.fetchMovieCredits(id);
-    const cast  = resp.cast.slice(0,5);
-    return cast
-}
-
-
-
+// Renders the single movie page
+// genresNames fetches the names of genres of the movie
 class MovieSection {
     static genresNames(movie){
         return movie.genres.map(el => el.name).join(", ")
     }
     static async renderMovie(movie) {
-        // console.log(movie.language)
-        // console.log(movie.production)
-      /* `<iframe width="560" height="315" src="https://www.youtube.com/embed/${trailerUrl.results[0].key}"
-         frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" 
-         allowfullscreen></iframe>`  */
         const trailerUrl = await APIService.fetchTrailer(movie.id)
-        // console.log("hi",trailerUrl.results[0].key)
-        const directors = await fetchDirectors(movie.id);
-        const castMembers=  await fetchCast(movie.id);
+        const directors = await APIService.fetchDirectors(movie.id);
+        const castMembers=  await APIService.fetchCast(movie.id);
         let similarMovies= await APIService.fetchSimilarMovies(movie.id);
-        console.log(similarMovies)
         similarMovies= similarMovies.results.slice(0,5)
         MoviePage.container.innerHTML = `
       <div class="row">
@@ -353,7 +338,6 @@ class MovieSection {
         `<h3>Similar Movies:</h3>
         <div class="similarMovies d-flex flex-wrap ">
         ${similarMovies.map(similarMovie =>{
-            console.log("similar-movie",similarMovie)
             return `<div class="similar-movie  col-md-3 col-lg-2 d-flex flex-wrap justify-content-center">
                             <h6>${similarMovie.title}</h6>
                             <img style= "cursor:pointer" src="${movie.backdropUrlProduction(similarMovie.backdrop_path)}" class="img-fluid " />
@@ -362,6 +346,7 @@ class MovieSection {
         </div>`
       ): ""}
     </div>`;
+    //similar movies section
     const similarMoviesSelect = document.querySelectorAll(".similar-movie");
     for(let i=0; i<similarMoviesSelect .length; i++){
         similarMoviesSelect[i].addEventListener("click", async ()=>{
@@ -370,25 +355,15 @@ class MovieSection {
         })
     }
 
-    /* const castMembersEvent= document.querySelectorAll(".cast-member")
-    for(let i=0; i<castMembersEvent.length; i++){
-        
-        castMembersEvent[i].addEventListener("click", async (e)=>{
-            e.preventDefault()
-            const fetchCastMember= await APIService.fetchActor(castMembers[i].id)
-            console.log("actor",fetchCastMember)
-            console.log("castMemeber", await SingleActorPage.renderActor(fetchCastMember))
-            await SingleActorPage.renderActor(fetchCastMember)
-        })
-    } */
-
     }
 }
+
+// each fetched movie is created using the Movie class
+// constructor adds the information needed
 
 class Movie {
     static BACKDROP_BASE_URL = 'http://image.tmdb.org/t/p/w780';
     constructor(json) {
-        // console.log(json)
         this.id = json.id;
         this.genres = json.genres;//arr of obj
         this.title = json.title;
@@ -401,22 +376,27 @@ class Movie {
         this.voteCount = json.vote_count;
         this.voteAverage = json.vote_average
     }
+    //to get the logo
     backdropUrlProduction(path) {
         return path ? Movie.BACKDROP_BASE_URL + path : "";
     }
+
+    //construct link to get the movie poster
     get backdropUrl() {
         return this.backdropPath ? Movie.BACKDROP_BASE_URL + this.backdropPath : "";
     }
 }
 
+// The run method uses the fetched actors and renders them in the actors page
 class Actors {
     static async run() {
         const actorsData = await APIService.fetchAllActors()
         ActorsPage.renderActors(actorsData);
-        // APIService.fetchActors(movieData)
     }
 }
 
+// each fetched actor is created using the Actor class
+// constructor adds the information needed
 class Actor {
     static BACKDROP_BASE_URL = 'http://image.tmdb.org/t/p/w780'
     constructor(json){
@@ -430,17 +410,19 @@ class Actor {
         this.deathday= json.deathday;
         this.bio = json.biography;
     }
-
+    // construct link to the actor's picture
     get backdropUrl() {
         return this.profilePath ? Actor.BACKDROP_BASE_URL + this.profilePath : "";
     }
 }
 
+
+// uses renderActors method to remove all existing html in the container
+// and renders the fetched actors
 class ActorsPage {
     static container = document.getElementById('container');
     
     static renderActors(actors) {
-        //clear container
         this.container.innerHTML = "";
         actors.forEach(actor => {
             this.container.classList.add("d-flex");
@@ -459,8 +441,6 @@ class ActorsPage {
             
             actorImage.addEventListener("click", async function() {
                 SingleActorPage.renderActor(actor)
-            //    const singleActor = await APIService.fetchActor(actor.id)
-            //    console.log(actor.knownFor)
             });
 
             actorDiv.appendChild(actorName);
@@ -470,15 +450,13 @@ class ActorsPage {
     }
 }
 
+// Renders the single actor page 
 class SingleActorPage{
     
     static async renderActor(actor) {
         const singleActor = await APIService.fetchActor(actor.id)
-        // console.log("aaa", singleActor)
         const birthday = singleActor.birthday===null? "unknown" : singleActor.birthday
         const deathday = singleActor.deathday === null? "alive" :singleActor.deathday
-        // console.log(singleActor.birthday)
-        // console.log(this.showRelatedMovies(actor.knownFor))
         const container = document.querySelector("#container")
         container.innerHTML = ""
        container.innerHTML = `
@@ -499,9 +477,8 @@ class SingleActorPage{
           <h4>Famous for:</h4>
             <div className="knownfor">
                 
-           ${ 
+           ${ //related movies section for actors
             actor.knownFor.map(movie=>{
-                // console.log(movie.original_name, movie.original_title )
                 if (movie.media_type==="tv"){ 
                     
                    return `<p class= "related-show" style="cursor:pointer">${movie.original_name}</p>`
@@ -521,10 +498,10 @@ class SingleActorPage{
         </div>
       </div>
     `;
-        const arrP = document.querySelectorAll(".related-show")
-        // actor.knownFor.forEach(movie=>{
-            for(let i= 0; i<arrP.length; i++){
-                arrP[i].addEventListener("click", async (e)=> {
+    
+        const famousForMovies = document.querySelectorAll(".related-show")
+            for(let i= 0; i<famousForMovies.length; i++){
+                famousForMovies[i].addEventListener("click", async (e)=> {
                     e.preventDefault()
                         if (actor.knownFor[i].original_name) {
                         const container = document.querySelector("#container");
@@ -561,6 +538,8 @@ function showAbout(){
     `;
 }
 
+// renderMovies takes the fetched movies of a specific genre as an input 
+// and renders all fetched movies in the page
 class GenrePage {
     static container = document.getElementById('container');
 
@@ -590,24 +569,29 @@ class GenrePage {
     }
 }
 
-const searchBtn = document.querySelector("[type='submit']")
 
+//event listeners for the navbar links
+//search button
+const searchBtn = document.querySelector("[type='submit']");
 searchBtn.addEventListener("click", async function(e){
     e.preventDefault();
     const input = document.querySelector("#search-input")
-    
-    // console.log(input.value)
     srchResults = await APIService.fetchSearch(input.value)
-    console.log("srcResult", srchResults)
     SearchPage.renderSearch(srchResults.results)
     })
 
-const actorsBtn = document.querySelector("#actors")
-document.addEventListener("DOMContentLoaded", App.run);
+// event listener to the actors button in the navbar
+const actorsBtn = document.querySelector("#actors");
 actorsBtn.addEventListener("click", Actors.run)
 
+// event listener to the about button in the navbar
 const about = document.querySelector("#about")
 about.addEventListener("click", showAbout)
+
+document.addEventListener("DOMContentLoaded", App.run);
+
+
+
 
 // select the drop menu
 // when page loaded we fetch data from url +/genre/movie/list

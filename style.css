@@ -120,7 +120,7 @@ input[type="search"]:focus {
 
 div[class="img-fluid"] {
     position: absolute;
-    transition: all .8s ease;
+    transition: all .9s ease-in;
 }
 .img-fluid:hover {
     position: relative;
