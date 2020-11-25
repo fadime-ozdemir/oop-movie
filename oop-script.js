@@ -152,6 +152,7 @@ class HomePage {
             const movieImage = document.createElement("img");
             movieImage.classList.add("img-fluid");
             movieDiv.classList.add("col-lg-4");
+            movieDiv.classList.add("movieDiv");
             movieDiv.classList.add("col-md-6");
             movieDiv.classList.add("p-4");
             movieImage.style.cursor = "pointer";
